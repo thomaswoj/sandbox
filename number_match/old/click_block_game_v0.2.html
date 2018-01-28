@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Tom Woj / Click Block - A Number Match Game</title>
+		<meta name="description" content="Initial version of a 'number match' game developed in JavaScript, utilizing CSS 'Grid'. Developed for use in a 'Software Developer Level 4 Apprenticeship'.">
+		<meta name="author" content="Tom Woj, wojdude@hotmail.com, tomwoj.co.uk">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+
+		<style>
+			html {
+				box-sizing: border-box;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+						user-select: none;
+				overflow: hidden;
+			}
+
+			*,
+			*:before,
+			*:after {
+				box-sizing: border-box;
+			}
+
+			body {
+				padding: 0;
+				margin: 0;
+				font-family: sans-serif, 'Open Sans';
+			}
+
+			.container {
+				max-width: 100vw;
+				max-height: 100vh;
+				height: 100vh;
+			}
+
+			.grid-container {
+				margin: auto;
+				display: grid;
+				height: 100vh;
+				width: 60vw;
+				max-width: 768px;
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				grid-gap: 2em 2em;
+				background-color: #ffffff;
+				padding: 2em;
+			}
+
+			@media screen and (max-width: 1200px) {
+				.grid-container {
+					width: 100vw;
+				}
+			}
+
+			.grid-container > div {
+				display: block;
+				margin: auto 0;
+/*				width: calc(100vw / 6);*/
+/*				height: 10vh;*/
+/*				margin: auto;*/
+				color: #d40e71;
+				font-size: 10vh;
+				vertical-align: middle;
+				text-align: center;
+			}
+
+			.grid-container div:hover {
+				text-decoration: underline;
+				cursor: pointer;
+				transform: scale(1.25)
+			}
+
+			.centered {
+				display: none;
+				position: fixed; /* or absolute */
+/*				padding: 100%;*/
+				top: 50%;
+				left: 50%;
+				/* bring your own prefixes */
+				transform: translate(-50%, -50%);
+				background-color: white;
+				text-align: center;
+				font-size: 5vmin;
+			}
+
+			.centered a {
+				text-decoration: none;
+				color: white;
+				background-color: #000000;
+			}
+
+			.centered a:hover, a:active {
+				color: black;
+				background-color: white;
+				box-shadow: 20px 20px 5px #222222;
+			}
+
+
+			.centered p, h1 {
+				color: #d40e71;
+			}
+
+			.title {
+				display: inline-block;
+			}
+
+			.m {
+				display: inline-block;
+				color: white;
+				background-color: black;
+				margin-bottom: 4%;
+				transform: scale(1);
+				letter-spacing: 3px;
+			}
+
+			#play h1:hover {
+				background-color: white;
+				transform: scale(1.3);
+				box-shadow: 20px 20px 5px #222222;
+			}
+
+			.matched {
+				color: #FFFFFF!important;
+				background-color: #000000;
+				text-decoration: underline;
+			}
+
+
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+
+			<div id="splash" class="centered">
+				<h1 class="title">NU<span class="m">M</span>BER
+				<br><span class="m">M</span>ATCH!</h1>
+				<br>
+				<p>Can you pair up the numbers in under 10 seconds?</p>
+				<p>Give it your best shot!</p>
+				<br>
+				<h3><a href="javascript:void(0)" id="play">PLAY!</a></h3>
+			</div>
+
+			<div id="complete" class="centered"></div>
+
+			<div id="grid-container" class="grid-container">
+
+			</div>
+
+		</div>
+
+	</body>
+	<script type=text/javascript>
+
+		(function() {
+			var numberSetOne = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+			var numberSetTwo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+			numberSetOne.sort(function() {
+			return .5 - Math.random();
+			})
+
+			numberSetTwo.sort(function() {
+			return .5 - Math.random();
+			})
+
+			var numberSet = numberSetOne.concat(numberSetTwo);
+
+			var numberSet = numberSetOne.concat(numberSetTwo);
+			var block = "<div>" + Math.random(1,10) + "</div>";
+			var numberOfBlocks = 20;
+			var blocks = "";
+			for (i = 0; i < numberOfBlocks; i++) {
+				var seed = Math.round(Math.random() * 7);
+
+				block = "<div " + "id=\"" + (i+1) + "\"" + " style=\"color: #" + "2" + Math.round(Math.random() * 90 - 15) + ";\"" + "onClick=\"numberMatch(this.id)\">" + numberSet[i] + "</div>";
+				console.log(block);
+				blocks += block;
+				document.getElementById("grid-container").innerHTML += block;
+			}
+
+			document.getElementById("splash").style.display = "block";
+			document.getElementById("grid-container").style.display = "none";
+
+			document.getElementById('play').onclick = function() {
+				document.getElementById("splash").style.display = "none";
+				document.getElementById("grid-container").style.display = "grid";
+				window.time = new Date();
+				document.documentElement.requestFullscreen();
+				return false;
+			};
+
+
+		})();
+
+//		window.first_click = null;
+//		window.is_same = null;
+//		window.complete = 0;
+
+		var first_click = null,
+				is_same = null,
+				complete = 0;
+
+		function numberMatch(clicked_id)
+
+			{
+				var el = document.getElementById(clicked_id);
+				var elSame = document.getElementById(is_same);
+
+				if (clicked_id == window.is_same) {
+					return;
+				}
+
+				if (el.innerHTML == window.first_click) {
+
+					el.className = "matched";
+					elSame.className = "matched";
+
+					window.first_click = el.innerHTML;
+					window.is_same = clicked_id;
+					window.complete += 1;
+
+					if (window.complete > 9) {
+
+						var completedTime = new Date() - window.time;
+
+						if (completedTime < 10000)
+						{
+						document.getElementById("complete").style.display = "block";
+						document.getElementById("grid-container").style.display = "none";
+
+						document.getElementById("complete").innerHTML += "<h1>WINNER!</h1>" + "<br>" + "<p>" + (completedTime / 1000) + "<br>SECONDS</p>";
+						document.getElementById("complete").innerHTML += "<br><h3><a href=\"javascript:window.location.href=window.location.href\">TRY AGAIN</a></h3>";
+						}
+
+						else
+						{
+
+						document.getElementById("complete").style.display = "block";
+						document.getElementById("grid-container").style.display = "none";
+
+						document.getElementById("complete").innerHTML += "<h1>YOU CAN DO IT!</h1><p>TRY TO GET UNDER 10 SECONDS!</p>" + "<br>" + "<p>" + (completedTime / 1000) + "<br>SECONDS</p>";
+						document.getElementById("complete").innerHTML += "<br><h3><a href=\"javascript:window.location.href=window.location.href\">TRY AGAIN</a></h3>";
+						}
+
+						}
+					return;
+					}
+
+				else {
+					window.first_click = el.innerHTML;
+					window.is_same = clicked_id;
+				}
+
+				// Debug & Testing Section
+
+//				console.log("Clicked:" + clicked_id);
+//				console.log("Is Same:" + window.is_same);
+//				console.log("First Click:" + window.first_click);
+//				console.log("Complete:" + window.complete);
+//				console.log("Time Taken:" + window.time);
+
+			}
+
+
+
+		// attempting to fix mobile URL bar issue
+
+
+
+	</script>
+</html>

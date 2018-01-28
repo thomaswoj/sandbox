@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Tom Woj / Click Block - A Number Match Game</title>
+		<meta name="description" content="Initial version of a 'number match' game developed in JavaScript, utilizing CSS 'Grid'. Developed for use in a 'Software Developer Level 4 Apprenticeship'.">
+		<meta name="author" content="Tom Woj, wojdude@hotmail.com, tomwoj.co.uk">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+
+		<style>
+			html {
+				box-sizing: border-box;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+						user-select: none;
+				overflow: hidden;
+			}
+
+			*,
+			*:before,
+			*:after {
+				box-sizing: border-box;
+			}
+
+			body {
+				padding: 0;
+				margin: 0;
+				font-family: sans-serif, 'Open Sans';
+			}
+
+			.container {
+				max-width: 100vw;
+				max-height: 100vh;
+				height: 100vh;
+			}
+
+			.grid-container {
+				display: grid;
+				background-color: #ffffff;
+				margin: auto;
+				height: 100vh;
+				width: 60vw;
+				max-width: 768px;
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				grid-gap: 2em 2em;
+				padding: 2em;
+			}
+
+			@media screen and (max-width: 1200px) {
+				.grid-container {
+					width: 100vw;
+				}
+			}
+
+			.grid-container > div {
+				color: #d40e71;
+				display: block;
+				margin: auto 0;
+				font-size: 10vh;
+				vertical-align: middle;
+				text-align: center;
+			}
+
+			.grid-container div:hover {
+				text-decoration: underline;
+				cursor: pointer;
+				transform: scale(1.25)
+			}
+
+			.centered {
+				background-color: #ffffff;
+				display: none;
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				font-size: 4vmin;
+			}
+
+			.centered a {
+				color: #ffffff;
+				background-color: #000000;
+				text-decoration: none;
+			}
+
+			.centered a:hover, a:active {
+				color: #000000;
+				background-color: #ffffff;
+				box-shadow: 20px 20px 5px #222222;
+			}
+
+
+			.centered p, h1 {
+				color: #d40e71;
+			}
+
+			.title {
+				display: inline-block;
+			}
+
+			.m {
+				color: white;
+				background-color: black;
+				display: inline-block;
+				margin-bottom: 4%;
+				transform: scale(1);
+				letter-spacing: 3px;
+			}
+
+			#play h1:hover {
+				background-color: white;
+				transform: scale(1.3);
+				box-shadow: 20px 20px 5px #222222;
+			}
+
+			.matched {
+				color: #FFFFFF!important;
+				background-color: #000000;
+				text-decoration: underline;
+			}
+
+
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+
+			<div id="splash" class="centered">
+				<h1 class="title">NU<span class="m">M</span>BER
+				<br><span class="m">M</span>ATCH!</h1>
+				<br>
+				<p>Can you pair up the numbers in under 10 seconds?</p>
+				<p>Give it your best shot!</p>
+				<br>
+				<h3><a href="javascript:void(0)" id="play">PLAY!</a></h3>
+			</div>
+
+			<div id="complete" class="centered"></div>
+
+			<div id="grid-container" class="grid-container">
+
+			</div>
+
+		</div>
+
+	</body>
+
+	<script type=text/javascript>
+
+		// Fisher-Yates (aka Knuth) Shuffle Algorithm
+		// https://github.com/coolaj86/knuth-shuffle
+
+		function shuffle(array) {
+			var currentIndex = array.length, temporaryValue, randomIndex;
+
+			while (0 !== currentIndex) {
+
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+
+				temporaryValue = array[currentIndex];
+				array[currentIndex] = array[randomIndex];
+				array[randomIndex] = temporaryValue;
+			}
+
+			return array;
+		}
+
+		// Initial Game Creation Function
+
+		function newGame() {
+
+			var getId = document.getElementById.bind(document);
+
+			// Creating Randomized Number and Color Sets for UI
+
+			var numberSetOne = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+					numberSetTwo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+			numberSetOne.sort(function() {
+			return .5 - Math.random();
+			})
+
+			numberSetTwo.sort(function() {
+			return .5 - Math.random();
+			})
+
+			var numberSet = numberSetOne.concat(numberSetTwo);
+
+			var colorSet = ["d40e71", "269", "2D3047", "2fb17c"];
+
+			for (i = 0; i < 5; i++) {
+				var colorSet = colorSet.concat(colorSet);
+			}
+
+			var colorSet = shuffle(colorSet);
+
+			// Creating HTML Grid Layout - Set at 20 Blocks/Squares
+
+			var block = "<div>" + Math.random(1,10) + "</div>",
+					numberOfBlocks = 20;
+
+			for (i = 0; i < numberOfBlocks; i++) {
+				block = "<div " + "id=\"" + (i+1) + "\"" + " style=\"color: #" + colorSet[i] + ";\"" + "onClick=\"numberMatch(this.id)\">" + numberSet[i] + "</div>";
+				getId("grid-container").innerHTML += block;
+			}
+
+			getId("splash").style.display = "block";
+			getId("grid-container").style.display = "none";
+
+			//
+			getId('play').onclick = function() {
+				resetGame();
+			};
+
+		}
+
+		// Set Initial Game Variables
+
+		var first_click = null,
+				is_same = null,
+				complete = 0,
+				best_times = [];
+
+		// Reset Game Function
+
+		function resetGame() {
+
+			// Reset Game Variables
+
+			window.first_click = null;
+			window.is_same = null;
+			window.complete = 0;
+			window.time = new Date();
+
+			var getId = document.getElementById.bind(document);
+
+			// Clear Screen and Re-initialise Game
+
+			getId("grid-container").innerHTML = "";
+
+			newGame();
+
+			getId("complete").innerHTML = "";
+
+			getId("grid-container").style.display = "grid";
+			getId("splash").style.display = "none";
+			getId("complete").style.display = "none";
+		}
+
+		// Game Logic
+		// Checks for clicks from the Grid IDs and creates win/lose screen accordingly.
+
+		function numberMatch(clicked_id)
+
+			{
+				var getId = document.getElementById.bind(document);
+
+				var el = getId(clicked_id);
+				var elSame = getId(is_same);
+
+
+				if (clicked_id == window.is_same) {
+					return;
+				}
+
+				if (el.innerHTML == window.first_click) {
+
+					el.className = "matched";
+					elSame.className = "matched";
+
+					window.first_click = el.innerHTML;
+					window.is_same = clicked_id;
+					window.complete += 1;
+
+					if (window.complete > 9) {
+
+						var completedTime = (new Date() - window.time) / 1000;
+						window.best_times = window.best_times.concat(completedTime);
+
+						if (completedTime < 10)
+						{
+						// Hides Game UI and Displays Win/Lose Screen
+						getId("complete").style.display = "block";
+						getId("grid-container").style.display = "none";
+
+						getId("complete").style.fontSize = "5vmin";
+
+						getId("complete").innerHTML += "<h1>WINNER!</h1><br><p>" + completedTime + "<br>SECONDS</p>";
+
+						getId("complete").innerHTML += "<br><h3><a href=\"javascript:resetGame();\">PLAY AGAIN</a></h3>";
+
+						getId("complete").innerHTML += "<br><h6>YOUR BEST SCORE IS <br>" + Math.min(...window.best_times) + " SECONDS!</p>";
+						}
+
+						else
+						{
+						// Hides Game UI and Displays Win/Lose Screen
+						getId("complete").style.display = "block";
+						getId("grid-container").style.display = "none";
+
+						getId("complete").style.fontSize = "3vmin";
+
+						getId("complete").innerHTML += "<h1>YOU CAN DO IT!</h1><br><p>TRY TO GET UNDER 10 SECONDS!</p><br><p>" + completedTime + "<br>SECONDS</p>";
+
+						getId("complete").innerHTML += "<br><h3><a href=\"javascript:resetGame();\">TRY AGAIN</a></h3>";
+
+						getId("complete").innerHTML += "<br><h6>YOUR BEST SCORE IS <br>" + Math.min(...window.best_times) + " SECONDS!</p>";
+						}
+
+						}
+					return;
+					}
+
+				else {
+					window.first_click = el.innerHTML;
+					window.is_same = clicked_id;
+				}
+
+				// Debug & Testing Section
+
+//				console.log("Clicked:" + clicked_id);
+//				console.log("Is Same:" + window.is_same);
+//				console.log("First Click:" + window.first_click);
+//				console.log("Complete:" + window.complete);
+//				console.log("Time Taken:" + window.time);
+
+				}
+
+		// Initialise The Game
+
+		newGame();
+
+	</script>
+</html>

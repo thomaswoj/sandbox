@@ -39,14 +39,14 @@
 			}
 
 			.grid-container {
-				margin: auto;
 				display: grid;
+				background-color: #ffffff;
+				margin: auto;
 				height: 100vh;
 				width: 60vw;
 				max-width: 768px;
 				grid-template-columns: 1fr 1fr 1fr 1fr;
 				grid-gap: 2em 2em;
-				background-color: #ffffff;
 				padding: 2em;
 			}
 
@@ -57,12 +57,9 @@
 			}
 
 			.grid-container > div {
+				color: #d40e71;
 				display: block;
 				margin: auto 0;
-/*				width: calc(100vw / 6);*/
-/*				height: 10vh;*/
-/*				margin: auto;*/
-				color: #d40e71;
 				font-size: 10vh;
 				vertical-align: middle;
 				text-align: center;
@@ -75,27 +72,25 @@
 			}
 
 			.centered {
+				background-color: #ffffff;
 				display: none;
-				position: fixed; /* or absolute */
-/*				padding: 100%;*/
+				position: fixed;
 				top: 50%;
 				left: 50%;
-				/* bring your own prefixes */
 				transform: translate(-50%, -50%);
-				background-color: white;
 				text-align: center;
 				font-size: 5vmin;
 			}
 
 			.centered a {
-				text-decoration: none;
-				color: white;
+				color: #ffffff;
 				background-color: #000000;
+				text-decoration: none;
 			}
 
 			.centered a:hover, a:active {
-				color: black;
-				background-color: white;
+				color: #000000;
+				background-color: #ffffff;
 				box-shadow: 20px 20px 5px #222222;
 			}
 
@@ -109,9 +104,9 @@
 			}
 
 			.m {
-				display: inline-block;
 				color: white;
 				background-color: black;
+				display: inline-block;
 				margin-bottom: 4%;
 				transform: scale(1);
 				letter-spacing: 3px;
@@ -155,11 +150,38 @@
 		</div>
 
 	</body>
+
 	<script type=text/javascript>
 
-		(function() {
-			var numberSetOne = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-			var numberSetTwo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+		// Fisher-Yates (aka Knuth) Shuffle Algorithm
+		// https://github.com/coolaj86/knuth-shuffle
+
+		function shuffle(array) {
+			var currentIndex = array.length, temporaryValue, randomIndex;
+
+			while (0 !== currentIndex) {
+
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+
+				temporaryValue = array[currentIndex];
+				array[currentIndex] = array[randomIndex];
+				array[randomIndex] = temporaryValue;
+			}
+
+			return array;
+		}
+
+		// Initial Game Creation Function
+
+		function newGame() {
+
+			var getId = document.getElementById.bind(document);
+
+			// Creating Randomized Number and Color Sets for UI
+
+			var numberSetOne = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+					numberSetTwo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
 			numberSetOne.sort(function() {
 			return .5 - Math.random();
@@ -171,46 +193,78 @@
 
 			var numberSet = numberSetOne.concat(numberSetTwo);
 
-			var numberSet = numberSetOne.concat(numberSetTwo);
-			var block = "<div>" + Math.random(1,10) + "</div>";
-			var numberOfBlocks = 20;
-			var blocks = "";
-			for (i = 0; i < numberOfBlocks; i++) {
-				var seed = Math.round(Math.random() * 7);
+			var colorSet = ["d40e71", "269", "2D3047", "2fb17c"];
 
-				block = "<div " + "id=\"" + (i+1) + "\"" + " style=\"color: #" + "2" + Math.round(Math.random() * 90 - 15) + ";\"" + "onClick=\"numberMatch(this.id)\">" + numberSet[i] + "</div>";
-				console.log(block);
-				blocks += block;
-				document.getElementById("grid-container").innerHTML += block;
+			for (i = 0; i < 5; i++) {
+				var colorSet = colorSet.concat(colorSet);
 			}
 
-			document.getElementById("splash").style.display = "block";
-			document.getElementById("grid-container").style.display = "none";
+			var colorSet = shuffle(colorSet);
 
-			document.getElementById('play').onclick = function() {
-				document.getElementById("splash").style.display = "none";
-				document.getElementById("grid-container").style.display = "grid";
-				window.time = new Date();
-				document.documentElement.requestFullscreen();
-				return false;
+			// Creating HTML Grid Layout - Set at 20 Blocks/Squares
+
+			var block = "<div>" + Math.random(1,10) + "</div>",
+					numberOfBlocks = 20;
+
+			for (i = 0; i < numberOfBlocks; i++) {
+				block = "<div " + "id=\"" + (i+1) + "\"" + " style=\"color: #" + colorSet[i] + ";\"" + "onClick=\"numberMatch(this.id)\">" + numberSet[i] + "</div>";
+				getId("grid-container").innerHTML += block;
+			}
+
+			getId("splash").style.display = "block";
+			getId("grid-container").style.display = "none";
+
+			//
+			getId('play').onclick = function() {
+				resetGame();
 			};
 
+		}
 
-		})();
-
-//		window.first_click = null;
-//		window.is_same = null;
-//		window.complete = 0;
+		// Set Initial Game Variables
 
 		var first_click = null,
 				is_same = null,
-				complete = 0;
+				complete = 0,
+				best_times = [];
+
+		// Reset Game Function
+
+		function resetGame() {
+
+			// Reset Game Variables
+
+			window.first_click = null;
+			window.is_same = null;
+			window.complete = 0;
+			window.time = new Date();
+
+			var getId = document.getElementById.bind(document);
+
+			// Clear Screen and Re-initialise Game
+
+			getId("grid-container").innerHTML = "";
+
+			newGame();
+
+			getId("complete").innerHTML = "";
+
+			getId("grid-container").style.display = "grid";
+			getId("splash").style.display = "none";
+			getId("complete").style.display = "none";
+		}
+
+		// Game Logic
+		// Checks for clicks from the Grid IDs and creates win/lose screen accordingly.
 
 		function numberMatch(clicked_id)
 
 			{
-				var el = document.getElementById(clicked_id);
-				var elSame = document.getElementById(is_same);
+				var getId = document.getElementById.bind(document);
+
+				var el = getId(clicked_id);
+				var elSame = getId(is_same);
+
 
 				if (clicked_id == window.is_same) {
 					return;
@@ -227,25 +281,33 @@
 
 					if (window.complete > 9) {
 
-						var completedTime = new Date() - window.time;
+						var completedTime = (new Date() - window.time) / 1000;
+						window.best_times = window.best_times.concat(completedTime);
 
-						if (completedTime < 10000)
+						if (completedTime < 10)
 						{
-						document.getElementById("complete").style.display = "block";
-						document.getElementById("grid-container").style.display = "none";
+						// Hides Game UI and Displays Win/Lose Screen
+						getId("complete").style.display = "block";
+						getId("grid-container").style.display = "none";
 
-						document.getElementById("complete").innerHTML += "<h1>WINNER!</h1>" + "<br>" + "<p>" + (completedTime / 1000) + "<br>SECONDS</p>";
-						document.getElementById("complete").innerHTML += "<br><h3><a href=\"javascript:window.location.href=window.location.href\">TRY AGAIN</a></h3>";
+						getId("complete").innerHTML += "<h1>WINNER!</h1><br><p>" + completedTime + "<br>SECONDS</p>";
+
+						getId("complete").innerHTML += "<br><h3><a href=\"javascript:resetGame();\">PLAY AGAIN</a></h3>";
+
+						getId("complete").innerHTML += "<br><h6>YOUR BEST SCORE IS <br>" + Math.min(...window.best_times) + " SECONDS!</p>";
 						}
 
 						else
 						{
+						// Hides Game UI and Displays Win/Lose Screen
+						getId("complete").style.display = "block";
+						getId("grid-container").style.display = "none";
 
-						document.getElementById("complete").style.display = "block";
-						document.getElementById("grid-container").style.display = "none";
+						getId("complete").innerHTML += "<h1>YOU CAN DO IT!</h1><br><p>TRY TO GET UNDER 10 SECONDS!</p><br><p>" + completedTime + "<br>SECONDS</p>";
 
-						document.getElementById("complete").innerHTML += "<h1>YOU CAN DO IT!</h1><p>TRY TO GET UNDER 10 SECONDS!</p>" + "<br>" + "<p>" + (completedTime / 1000) + "<br>SECONDS</p>";
-						document.getElementById("complete").innerHTML += "<br><h3><a href=\"javascript:window.location.href=window.location.href\">TRY AGAIN</a></h3>";
+						getId("complete").innerHTML += "<br><h3><a href=\"javascript:resetGame();\">TRY AGAIN</a></h3>";
+
+						getId("complete").innerHTML += "<br><h6>YOUR HIGHEST SCORE IS <br>" + Math.min(...window.best_times) + " SECONDS!</p>";
 						}
 
 						}
@@ -265,13 +327,11 @@
 //				console.log("Complete:" + window.complete);
 //				console.log("Time Taken:" + window.time);
 
-			}
+				}
 
+		// Initialise The Game
 
-
-		// attempting to fix mobile URL bar issue
-
-
+		newGame();
 
 	</script>
 </html>

@@ -1,5 +1,9 @@
-# sandbox
-A place to discover and learn.
+# Number Match
+A simple Number Matching game developed in html5 and JavaScript. 
 
-To be used along side Software Developer Level 4 Apprenticeship with Digital Balance Ltd, UK - in partnership with Escalla Trainaing. 
+The player must match all of the number pairs on screen in under 10 seconds to win.
 
+Developed for a Software Developer Level 4 Apprenticeship with Digital Balance Ltd, UK - in partnership with Escalla Trainaing. 
+
+Author: Tom Woj, tomwoj.co.uk
+Date: Jan 2018

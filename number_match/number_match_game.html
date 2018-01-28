@@ -79,7 +79,7 @@
 				left: 50%;
 				transform: translate(-50%, -50%);
 				text-align: center;
-				font-size: 5vmin;
+				font-size: 3vmin;
 			}
 
 			.centered a {
@@ -290,6 +290,8 @@
 						getId("complete").style.display = "block";
 						getId("grid-container").style.display = "none";
 
+						getId("complete").style.fontSize = "5vmin";
+
 						getId("complete").innerHTML += "<h1>WINNER!</h1><br><p>" + completedTime + "<br>SECONDS</p>";
 
 						getId("complete").innerHTML += "<br><h3><a href=\"javascript:resetGame();\">PLAY AGAIN</a></h3>";
@@ -302,6 +304,8 @@
 						// Hides Game UI and Displays Win/Lose Screen
 						getId("complete").style.display = "block";
 						getId("grid-container").style.display = "none";
+
+						getId("complete").style.fontSize = "3vmin";
 
 						getId("complete").innerHTML += "<h1>YOU CAN DO IT!</h1><br><p>TRY TO GET UNDER 10 SECONDS!</p><br><p>" + completedTime + "<br>SECONDS</p>";
 
